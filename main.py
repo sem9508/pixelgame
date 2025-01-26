@@ -1,5 +1,6 @@
-from game import Game
-from constants import *
+from scenes.game import Game
+from config.constants import *
+from config.settings import *
 import pygame
 
 if __name__ == '__main__':

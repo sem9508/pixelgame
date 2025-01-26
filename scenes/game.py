@@ -1,7 +1,8 @@
 import pygame
-from constants import *
+from config.constants import *
+from config.settings import *
 import sys
-from grid import Grid
+from objects.grid import Grid
 
 class Game:
     def __init__(self, screen):

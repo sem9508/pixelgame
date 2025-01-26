@@ -1,6 +1,7 @@
 import pygame
 import random
-from constants import *
+from config.constants import *
+from config.settings import *
 
 class Grid:
     def __init__(self, tile_size, chunk_size):
