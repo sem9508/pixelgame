@@ -1,8 +1,9 @@
 import pygame
-from config.constants import *
+from config.colors import *
 from config.settings import *
 import sys
 from objects.grid import Grid
+from objects.player import Player
 
 class Game:
     def __init__(self, screen):
@@ -11,6 +12,7 @@ class Game:
         self.clock = pygame.time.Clock()
 
         self.grid = Grid(TILE_SIZE, CHUNK_SIZE)
+        self.player = Player(0, 0)
 
         self.camera_x_offset, self.camera_y_offset = 0, 0
         self.viewport_width, self.viewport_height = SCREEN_WIDTH // TILE_SIZE, SCREEN_HEIGHT // TILE_SIZE
@@ -33,6 +35,7 @@ class Game:
 
         # GRID
         self.grid.draw(self.screen, self.camera_x_offset, self.camera_y_offset, self.viewport_width, self.viewport_height)
+        self.player.draw(self.screen)
 
         # UPDATE
         pygame.display.update()
@@ -47,12 +50,13 @@ class Game:
                 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
-            self.camera_y_offset -= PLAYER_SPEED
+            self.player.move_y(-1)
         if keys[pygame.K_s]:
-            self.camera_y_offset += PLAYER_SPEED
+            self.player.move_y(1)
         if keys[pygame.K_a]:
-            self.camera_x_offset -= PLAYER_SPEED
+            self.player.move_x(-1)
         if keys[pygame.K_d]:
-            self.camera_x_offset += PLAYER_SPEED
+            self.player.move_x(1)
+
 
         return True

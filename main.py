@@ -1,5 +1,5 @@
 from scenes.game import Game
-from config.constants import *
+from config.colors import *
 from config.settings import *
 import pygame
 
