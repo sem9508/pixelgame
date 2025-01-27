@@ -4,6 +4,8 @@ from config.settings import *
 import sys
 from objects.grid import Grid
 from objects.player import Player
+from managers.music_manager import MusicManager
+
 
 class Game:
     def __init__(self, screen):
@@ -11,9 +13,13 @@ class Game:
         self.run = True
         self.clock = pygame.time.Clock()
 
-        self.grid = Grid(TILE_SIZE, CHUNK_SIZE)
-        self.player = Player(0, 0)
+        self.music_manager = MusicManager('./assets/endlessdungeon.mp3', 100)
+        self.music_manager.play(5000)
 
+        self.enemies = []
+
+        self.grid = Grid(TILE_SIZE, CHUNK_SIZE)
+        self.player = Player()
         self.camera_x_offset, self.camera_y_offset = 0, 0
         self.viewport_width, self.viewport_height = SCREEN_WIDTH // TILE_SIZE, SCREEN_HEIGHT // TILE_SIZE
 
@@ -24,7 +30,9 @@ class Game:
             if self.run:
                 self.update()
                 self.draw()
+                self.music_manager.fade_update()
                 self.clock.tick(FPS)
+                
 
         pygame.quit()
         sys.exit()
@@ -34,14 +42,21 @@ class Game:
         self.screen.fill(BACKGROUND_COLOR)
 
         # GRID
-        self.grid.draw(self.screen, self.camera_x_offset, self.camera_y_offset, self.viewport_width, self.viewport_height)
+        self.enemies = self.grid.draw(self.screen, int(self.camera_x_offset), int(self.camera_y_offset), self.viewport_width, self.viewport_height)
         self.player.draw(self.screen)
+
+        for enemy in self.enemies:
+            enemy.draw(self.screen, self.camera_x_offset, self.camera_y_offset)
 
         # UPDATE
         pygame.display.update()
 
     def update(self):
-        pass
+
+        for enemy in self.enemies:
+            enemy.update(self.player.world_x, self.player.world_y)
+
+        self.player.update(self.camera_x_offset, self.camera_y_offset)
 
     def handle_events(self):
         for event in pygame.event.get():
@@ -50,13 +65,12 @@ class Game:
                 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
-            self.player.move_y(-1)
+            self.camera_y_offset -= PLAYER_SPEED
         if keys[pygame.K_s]:
-            self.player.move_y(1)
+            self.camera_y_offset += PLAYER_SPEED
         if keys[pygame.K_a]:
-            self.player.move_x(-1)
+            self.camera_x_offset -= PLAYER_SPEED
         if keys[pygame.K_d]:
-            self.player.move_x(1)
-
+            self.camera_x_offset += PLAYER_SPEED
 
         return True
