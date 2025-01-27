@@ -65,9 +65,9 @@ class Game:
                 
                 if event.type == pygame.MOUSEWHEEL:
                     if event.y < 0:
-                        self.player.change_selected_inventory_slot(-1)
-                    elif event.y > 0:
                         self.player.change_selected_inventory_slot(1)
+                    elif event.y > 0:
+                        self.player.change_selected_inventory_slot(-1)
                 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
@@ -78,5 +78,6 @@ class Game:
             self.camera_x_offset -= PLAYER_SPEED
         if keys[pygame.K_d]:
             self.camera_x_offset += PLAYER_SPEED
+
 
         return True
