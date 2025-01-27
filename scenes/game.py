@@ -63,6 +63,12 @@ class Game:
                 if event.type == pygame.QUIT:
                     return False
                 
+                if event.type == pygame.MOUSEWHEEL:
+                    if event.y < 0:
+                        self.player.change_selected_inventory_slot(-1)
+                    elif event.y > 0:
+                        self.player.change_selected_inventory_slot(1)
+                
         keys = pygame.key.get_pressed()
         if keys[pygame.K_w]:
             self.camera_y_offset -= PLAYER_SPEED
