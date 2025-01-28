@@ -12,6 +12,7 @@ class Enemy:
         self.height = TILE_SIZE - ENEMY_TILE_OFFSET*2
         self.img = pygame.image.load('./assets/enemy.png').convert_alpha()
         self.img = pygame.transform.scale(self.img, (self.width, self.height))
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
 
     def follow_player(self, player_x, player_y):
         # Simple AI to follow the player based on their world position
@@ -33,3 +34,4 @@ class Enemy:
 
     def update(self, player_x, player_y):
         self.follow_player(player_x, player_y)
+        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)

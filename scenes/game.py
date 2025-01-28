@@ -1,7 +1,6 @@
 import pygame
 from config.colors import *
 from config.settings import *
-import sys
 from objects.grid import Grid
 from objects.player import Player
 from managers.music_manager import MusicManager
@@ -33,16 +32,14 @@ class Game:
                 self.music_manager.fade_update()
                 self.clock.tick(FPS)
                 
-
-        pygame.quit()
-        sys.exit()
+        return 1 # MENU
 
     def draw(self):
         # CLEAR SCREEN
         self.screen.fill(BACKGROUND_COLOR)
 
         # GRID
-        self.enemies = self.grid.draw(self.screen, int(self.camera_x_offset), int(self.camera_y_offset), self.viewport_width, self.viewport_height)
+        self.grid.draw(self.screen, int(self.camera_x_offset), int(self.camera_y_offset), self.viewport_width, self.viewport_height)
         self.player.draw(self.screen)
 
         for enemy in self.enemies:

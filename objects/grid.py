@@ -9,8 +9,6 @@ class Grid:
     def __init__(self, tile_size, chunk_size):
         self.tile_size = tile_size
         self.chunk_size = chunk_size
-        self.enemies = []
-        self.spawned_enemies = set()
         self.chunks = {(0, 0):[['FLOOR' for _ in range(CHUNK_SIZE)] for _ in range(CHUNK_SIZE)]}
 
     def generate_chunk(self, chunk_x, chunk_y):
@@ -30,10 +28,8 @@ class Grid:
         return chunk
     
     def map_noise_to_tile(self, noise_value):
-        if noise_value < -0.4:
+        if noise_value < -0.37:
             return 'LOOT'
-        elif noise_value < -0.3:
-            return 'ENEMY'
         elif noise_value < 0.05:
             return 'FLOOR'
         elif noise_value < 0.4:
@@ -52,24 +48,9 @@ class Grid:
             return (139, 137, 137)
         else:
             return (0, 0, 0)
-        
-    def spawn_enemy(self, chunk_x, chunk_y, row, col):
-        world_x = (chunk_x * self.chunk_size + col) * self.tile_size
-        world_y = (chunk_y * self.chunk_size + row) * self.tile_size
-
-        self.enemies.append(Enemy(world_x, world_y, 3))
 
     def update_tile(self, chunk, row, col, chunk_x, chunk_y):
-        tile_type = chunk[row][col]
-        if tile_type == 'ENEMY':
-            # Check if this tile has already spawned an enemy
-            if (chunk_x, chunk_y, row, col) not in self.spawned_enemies:
-                # Spawn the enemy and mark the tile as processed
-                self.spawn_enemy(chunk_x, chunk_y, row, col)
-                self.spawned_enemies.add((chunk_x, chunk_y, row, col))
-            # Change the tile to 'FLOOR' after spawning the enemy
-            chunk[row][col] = 'FLOOR'
-        return tile_type, chunk
+        pass
 
     def get_chunk(self, chunk_x, chunk_y):
         if (chunk_x, chunk_y) not in self.chunks:
@@ -95,7 +76,6 @@ class Grid:
                         world_x = (chunk_x * self.chunk_size + col) * self.tile_size
                         world_y = (chunk_y * self.chunk_size + row) * self.tile_size
 
-                        chunk[row][col], chunk = self.update_tile(chunk, row, col, chunk_x, chunk_y)
                         tile = chunk[row][col]
                         pygame.draw.rect(screen, self.get_tile_color(tile), (world_x - camera_x_offset, world_y - camera_y_offset, self.tile_size, self.tile_size))
 
@@ -111,5 +91,4 @@ class Grid:
                     pygame.draw.line(screen, RED, (chunk_end_x, chunk_start_y), (chunk_end_x, chunk_end_y))
 
                 self.chunks[(chunk_x, chunk_y)] = self.update_chunk(chunk_x, chunk_y, chunk)
-        
-        return self.enemies
+    
