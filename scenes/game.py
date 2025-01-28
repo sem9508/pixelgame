@@ -4,7 +4,8 @@ from config.settings import *
 from objects.grid import Grid
 from objects.player import Player
 from managers.music_manager import MusicManager
-
+from managers.enemy_manager import EnemyManager
+import math
 
 class Game:
     def __init__(self, screen):
@@ -15,12 +16,13 @@ class Game:
         self.music_manager = MusicManager('./assets/endlessdungeon.mp3', 100)
         self.music_manager.play(5000)
 
-        self.enemies = []
+        self.enemy_manager = EnemyManager()
 
         self.grid = Grid(TILE_SIZE, CHUNK_SIZE)
         self.player = Player()
-        self.camera_x_offset, self.camera_y_offset = 0, 0
+        self.camera_x_offset, self.camera_y_offset = (SCREEN_WIDTH/(TILE_SIZE*CHUNK_SIZE)/-2)*CHUNK_SIZE*TILE_SIZE+TILE_SIZE*CHUNK_SIZE/2-self.player.width/2, (SCREEN_HEIGHT/(TILE_SIZE*CHUNK_SIZE)/-2)*CHUNK_SIZE*TILE_SIZE+TILE_SIZE*CHUNK_SIZE/2-self.player.height/2
         self.viewport_width, self.viewport_height = SCREEN_WIDTH // TILE_SIZE, SCREEN_HEIGHT // TILE_SIZE
+        print(SCREEN_WIDTH/(TILE_SIZE*CHUNK_SIZE))
 
     def loop(self):
         while self.run:
@@ -31,7 +33,7 @@ class Game:
                 self.draw()
                 self.music_manager.fade_update()
                 self.clock.tick(FPS)
-                
+                pygame.display.set_caption(str(math.floor(self.clock.get_fps())))
         return 1 # MENU
 
     def draw(self):
@@ -39,19 +41,15 @@ class Game:
         self.screen.fill(BACKGROUND_COLOR)
 
         # GRID
-        self.grid.draw(self.screen, int(self.camera_x_offset), int(self.camera_y_offset), self.viewport_width, self.viewport_height)
+        self.grid.draw(self.screen, int(self.camera_x_offset), int(self.camera_y_offset), self.viewport_width, self.viewport_height, self.enemy_manager, self.player.world_x+self.player.width//2, self.player.world_y+self.player.height//2)
         self.player.draw(self.screen)
-
-        for enemy in self.enemies:
-            enemy.draw(self.screen, self.camera_x_offset, self.camera_y_offset)
+        self.enemy_manager.draw(self.screen, self.camera_x_offset, self.camera_y_offset)
 
         # UPDATE
         pygame.display.update()
 
     def update(self):
 
-        for enemy in self.enemies:
-            enemy.update(self.player.world_x, self.player.world_y)
 
         self.player.update(self.camera_x_offset, self.camera_y_offset)
 
