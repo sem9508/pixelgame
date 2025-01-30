@@ -10,7 +10,8 @@ class Grid:
     def __init__(self, tile_size, chunk_size):
         self.tile_size = tile_size
         self.chunk_size = chunk_size
-        self.chunks = {(0, 0):[['FLOOR' for _ in range(CHUNK_SIZE)] for _ in range(CHUNK_SIZE)]}
+        self.chunks = {(0, 0): [['FLOOR' for _ in range(CHUNK_SIZE)] for _ in range(CHUNK_SIZE)]}
+        self.wall_rects = []  # List to store Rect objects for walls
 
     def generate_chunk(self, chunk_x, chunk_y):
         chunk = []
@@ -24,8 +25,17 @@ class Grid:
 
                 tile_type = self.map_noise_to_tile(noise_value)
                 row.append(tile_type)
+
+                # If the tile is a wall, add its Rect to the list
+                if tile_type == 'WALL':
+                    rect = pygame.Rect(
+                        (chunk_x * CHUNK_SIZE + x) * TILE_SIZE,
+                        (chunk_y * CHUNK_SIZE + y) * TILE_SIZE,
+                        TILE_SIZE,
+                        TILE_SIZE
+                    )
+                    self.wall_rects.append(rect)
             chunk.append(row)
-        
         return chunk
     
     def map_noise_to_tile(self, noise_value):
@@ -66,25 +76,23 @@ class Grid:
         distance = math.sqrt(x_diff**2 + y_diff**2)
         
         if distance == 0:
-            return True  # We're standing on the same tile
+            return True
         
         step_x = x_diff / distance
         step_y = y_diff / distance
 
         x, y = start_x, start_y
         for _ in range(int(distance)):
-            # Step along the ray, check if we hit a wall
             x += step_x
             y += step_y
             
             chunk_x, tile_x = divmod(int(x), CHUNK_SIZE)
             chunk_y, tile_y = divmod(int(y), CHUNK_SIZE)
-            
-            # Get the chunk and tile
+
             chunk = grid.get_chunk(chunk_x, chunk_y, enemy_manager)
             tile = chunk[tile_y][tile_x]
 
-            if tile == 'WALL':  # Block the ray if it's a wall
+            if tile == 'WALL':
                 return False
 
         return True
@@ -93,16 +101,12 @@ class Grid:
         self.chunks[(chunk_x, chunk_y)] = chunk
         return chunk
         
-    def draw(self, screen, camera_x_offset, camera_y_offset, viewport_width, viewport_height, enemy_manager, player_x, player_y):
-        start_chunk_x = camera_x_offset // (self.chunk_size * self.tile_size) - 1
-        start_chunk_y = camera_y_offset // (self.chunk_size * self.tile_size) - 1
-        end_chunk_x = (camera_x_offset + viewport_width * self.tile_size) // (self.chunk_size * self.tile_size) + 1
-        end_chunk_y = (camera_y_offset + viewport_height * self.tile_size) // (self.chunk_size * self.tile_size) + 1
+    def draw(self, screen, camera, viewport_width, viewport_height, enemy_manager, player_x, player_y):
+        start_chunk_x = int(camera.x // (self.chunk_size * self.tile_size) - 1)
+        start_chunk_y = int(camera.y // (self.chunk_size * self.tile_size) - 1)
+        end_chunk_x = int((camera.x + viewport_width * self.tile_size) // (self.chunk_size * self.tile_size) + 1)
+        end_chunk_y = int((camera.y + viewport_height * self.tile_size) // (self.chunk_size * self.tile_size) + 1)
 
-        player_chunk_x = player_x // (self.chunk_size * self.tile_size)
-        player_chunk_y = player_y // (self.chunk_size * self.tile_size)
-        
-        # Loop over all chunks
         for chunk_y in range(start_chunk_y, end_chunk_y + 1):
             for chunk_x in range(start_chunk_x, end_chunk_x + 1):
                 chunk = self.get_chunk(chunk_x, chunk_y, enemy_manager)
@@ -111,24 +115,22 @@ class Grid:
                         world_x = (chunk_x * self.chunk_size + col) * self.tile_size
                         world_y = (chunk_y * self.chunk_size + row) * self.tile_size
 
-                        # Calculate tile's distance to the player
                         distance = math.sqrt((player_x - world_x)**2 + (player_y - world_y)**2) / self.tile_size
 
-                        # Check if within vision radius and if there's line of sight
-                        if not (distance <= VISION_RADIUS and self.is_tile_visible(player_x // self.tile_size, player_y // self.tile_size, world_x // self.tile_size, world_y // self.tile_size, enemy_manager)):
-                            pygame.draw.rect(screen, self.get_tile_color('WALL'), (world_x - camera_x_offset, world_y - camera_y_offset, self.tile_size, self.tile_size))
+                        if not (distance <= VISION_RADIUS and self.is_tile_visible(player_x // self.tile_size, player_y // self.tile_size, world_x // self.tile_size, world_y // self.tile_size, enemy_manager)) and LIMITED_VISION:
+                            pygame.draw.rect(screen, self.get_tile_color('WALL'), (world_x - camera.x, world_y - camera.y, self.tile_size, self.tile_size))
 
                         
                         else:
                             tile = chunk[row][col]
-                            pygame.draw.rect(screen, self.get_tile_color(tile), (world_x - camera_x_offset, world_y - camera_y_offset, self.tile_size, self.tile_size))
+                            pygame.draw.rect(screen, self.get_tile_color(tile), (world_x - camera.x, world_y - camera.y, self.tile_size, self.tile_size))
 
 
                     if SHOW_CHUNK_BORDERS:
-                        chunk_start_x = chunk_x * CHUNK_SIZE * TILE_SIZE - camera_x_offset
-                        chunk_start_y = chunk_y * CHUNK_SIZE * TILE_SIZE - camera_y_offset
-                        chunk_end_x = (chunk_x + 1) * CHUNK_SIZE * TILE_SIZE - camera_x_offset
-                        chunk_end_y = (chunk_y + 1) * CHUNK_SIZE * TILE_SIZE - camera_y_offset
+                        chunk_start_x = chunk_x * CHUNK_SIZE * TILE_SIZE - camera.x
+                        chunk_start_y = chunk_y * CHUNK_SIZE * TILE_SIZE - camera.y
+                        chunk_end_x = (chunk_x + 1) * CHUNK_SIZE * TILE_SIZE - camera.x
+                        chunk_end_y = (chunk_y + 1) * CHUNK_SIZE * TILE_SIZE - camera.y
 
                         pygame.draw.line(screen, RED, (chunk_start_x, chunk_start_y), (chunk_end_x, chunk_start_y))
                         pygame.draw.line(screen, RED, (chunk_start_x, chunk_start_y), (chunk_start_x, chunk_end_y))

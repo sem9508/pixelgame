@@ -29,6 +29,6 @@ class EnemyManager:
                     # Spawn the enemy at this position
                     self.spawn_enemy(enemy_x, enemy_y)
 
-    def draw(self, screen, camera_x_offset, camera_y_offset):
+    def draw(self, screen, camera):
         for enemie in self.enemies:
-            enemie.draw(screen, camera_x_offset, camera_y_offset)
+            enemie.draw(screen, camera.x, camera.y)

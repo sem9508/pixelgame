@@ -1,34 +1,68 @@
 import pygame
 from config.colors import *
 from config.settings import *
+import math
 
 class Player:
     def __init__(self):
         self.width = TILE_SIZE - PLAYER_TILE_OFFSET*2
         self.height = TILE_SIZE - PLAYER_TILE_OFFSET*2
-        self.x = SCREEN_WIDTH // 2 - self.width // 2  # This is the screen-centered position
-        self.y = SCREEN_HEIGHT // 2 - self.height // 2
+
+        self.draw_x = SCREEN_WIDTH // 2 - self.width // 2
+        self.draw_y = SCREEN_HEIGHT // 2 - self.height // 2
+        self.world_x = self.draw_x  # Track player world position
+        self.world_y = self.draw_y
+
         self.inventory = []
         self.max_inventory = 8
-        self.world_x = self.x  # Track player world position
-        self.world_y = self.y
         self.inventory_height = 100
         self.inventory_selected_slot = 0
         self.img = pygame.image.load('./assets/player.png').convert_alpha()
         self.img = pygame.transform.scale(self.img, (self.width, self.height))
 
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+        self.rect = pygame.Rect(self.world_x, self.world_y, self.width, self.height)
 
         self.speed = PLAYER_SPEED
-
-    def update(self, camera_x_offset, camera_y_offset):
-        # Update player's world position based on the camera offset
-        self.world_x = self.x + camera_x_offset
-        self.world_y = self.y + camera_y_offset
         
+    def move(self, dir_x, dir_y, grid):
+        # Calculate potential new positions for X and Y separately
+        new_x = self.world_x + dir_x * PLAYER_SPEED
+        new_y = self.world_y + dir_y * PLAYER_SPEED
+
+        # Create temporary Rects for the new X and Y positions
+        new_rect_x = pygame.Rect(new_x, self.world_y, self.width, self.height)
+        new_rect_y = pygame.Rect(self.world_x, new_y, self.width, self.height)
+
+        # Check for collisions in the X direction
+        collision_x = False
+        for wall_rect in grid.wall_rects:
+            if new_rect_x.colliderect(wall_rect):
+                collision_x = True
+                break
+
+        # Check for collisions in the Y direction
+        collision_y = False
+        for wall_rect in grid.wall_rects:
+            if new_rect_y.colliderect(wall_rect):
+                collision_y = True
+                break
+
+        # Update player position based on collisions
+        if not collision_x:
+            self.world_x = new_x
+        if not collision_y:
+            self.world_y = new_y
+
+        # Update the player's Rect
+        self.rect.topleft = (self.world_x, self.world_y)
+        self.rect.x = self.world_x
+        self.rect.y = self.world_y
+
+    def update(self):
+        pass
 
     def draw(self, screen):
-        screen.blit(self.img, (self.x + PLAYER_TILE_OFFSET, self.y + PLAYER_TILE_OFFSET, self.width, self.height))
+        screen.blit(self.img, (self.draw_x, self.draw_y, self.width, self.height))
         self.draw_inventory(screen)
 
     def draw_inventory(self, screen):
