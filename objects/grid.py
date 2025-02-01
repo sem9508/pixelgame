@@ -102,6 +102,7 @@ class Grid:
         return chunk
         
     def draw(self, screen, camera, viewport_width, viewport_height, enemy_manager, player_x, player_y):
+        self.to_draw = []
         start_chunk_x = int(camera.x // (self.chunk_size * self.tile_size) - 1)
         start_chunk_y = int(camera.y // (self.chunk_size * self.tile_size) - 1)
         end_chunk_x = int((camera.x + viewport_width * self.tile_size) // (self.chunk_size * self.tile_size) + 1)
@@ -118,7 +119,7 @@ class Grid:
                         distance = math.sqrt((player_x - world_x)**2 + (player_y - world_y)**2) / self.tile_size
 
                         if not (distance <= VISION_RADIUS and self.is_tile_visible(player_x // self.tile_size, player_y // self.tile_size, world_x // self.tile_size, world_y // self.tile_size, enemy_manager)) and LIMITED_VISION:
-                            pygame.draw.rect(screen, self.get_tile_color('WALL'), (world_x - camera.x, world_y - camera.y, self.tile_size, self.tile_size))
+                            self.to_draw.append([world_x, world_y, camera])
 
                         
                         else:
@@ -138,3 +139,10 @@ class Grid:
                         pygame.draw.line(screen, RED, (chunk_end_x, chunk_start_y), (chunk_end_x, chunk_end_y))
 
                 self.chunks[(chunk_x, chunk_y)] = self.update_chunk(chunk_x, chunk_y, chunk)
+
+    def second_draw(self, screen):
+        for item in self.to_draw:
+            world_x = item[0]
+            world_y = item[1]
+            camera = item[2]
+            pygame.draw.rect(screen, self.get_tile_color('WALL'), (world_x - camera.x, world_y - camera.y, self.tile_size, self.tile_size))

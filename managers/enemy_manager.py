@@ -37,4 +37,4 @@ class EnemyManager:
         for enemie in self.enemies:
             if enemie.x > camera.x-SCREEN_WIDTH//5 and enemie.x < camera.x+SCREEN_WIDTH*1.2 and enemie.y > camera.y-SCREEN_HEIGHT//5 and enemie.y < camera.y+SCREEN_HEIGHT*1.2:
                 if enemie.can_see_player(player_rect, chunks):
-                    enemie.follow_player(player_rect.x, player_rect.y)
+                    enemie.follow_player(player_rect.x, player_rect.y, chunks)

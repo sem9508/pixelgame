@@ -41,8 +41,10 @@ class Game:
 
         # GRID
         self.grid.draw(self.screen, self.camera, self.viewport_width, self.viewport_height, self.enemy_manager, self.player.world_x+self.player.width//2, self.player.world_y+self.player.height//2)
-        self.player.draw(self.screen)
         self.enemy_manager.draw(self.screen, self.camera)
+        self.grid.second_draw(self.screen)
+        self.player.draw(self.screen)
+
 
         # UPDATE
         pygame.display.update()
