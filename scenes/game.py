@@ -49,6 +49,7 @@ class Game:
 
     def update(self):
         self.music_manager.fade_update()
+        self.enemy_manager.update(self.player.rect, self.camera, self.grid.chunks)
         self.camera.update(self.player.rect)
 
     def handle_events(self):

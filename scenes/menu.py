@@ -23,9 +23,14 @@ class Menu:
         self.screen.fill(MENU_COLOR)
 
         pygame.display.update()
+
+    def update(self):
+        pass
          
     
     def handle_events(self):
         for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     return False
+                
+        return True

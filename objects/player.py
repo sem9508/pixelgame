@@ -25,38 +25,30 @@ class Player:
         self.speed = PLAYER_SPEED
         
     def move(self, dir_x, dir_y, grid):
-        # Calculate potential new positions for X and Y separately
         new_x = self.world_x + dir_x * PLAYER_SPEED
         new_y = self.world_y + dir_y * PLAYER_SPEED
 
-        # Create temporary Rects for the new X and Y positions
         new_rect_x = pygame.Rect(new_x, self.world_y, self.width, self.height)
         new_rect_y = pygame.Rect(self.world_x, new_y, self.width, self.height)
 
-        # Check for collisions in the X direction
         collision_x = False
         for wall_rect in grid.wall_rects:
             if new_rect_x.colliderect(wall_rect):
                 collision_x = True
                 break
 
-        # Check for collisions in the Y direction
         collision_y = False
         for wall_rect in grid.wall_rects:
             if new_rect_y.colliderect(wall_rect):
                 collision_y = True
                 break
 
-        # Update player position based on collisions
         if not collision_x:
             self.world_x = new_x
         if not collision_y:
             self.world_y = new_y
 
-        # Update the player's Rect
         self.rect.topleft = (self.world_x, self.world_y)
-        self.rect.x = self.world_x
-        self.rect.y = self.world_y
 
     def update(self):
         pass
