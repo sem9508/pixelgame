@@ -16,7 +16,7 @@ class Menu:
                 self.draw()
                 self.clock.tick(FPS)
 
-
+            break # NO MENU NOW
         return -1
     
     def draw(self):
