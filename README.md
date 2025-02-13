@@ -1,9 +1,9 @@
 TO RUN DO:
 
-pip install -r 'requirements.txt'
+* pip install -r 'requirements.txt'
 
 OR:
-pip install pygame
-pip install noise
+* pip install pygame
+* pip install noise
 
 THEN RUN main.py
