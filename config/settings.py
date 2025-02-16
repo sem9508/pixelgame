@@ -2,7 +2,6 @@ from config.colors import *
 
 DEBUG_SETTINGS = False
 
-
 # DEBUG SETTINGS
 if DEBUG_SETTINGS:
     SHOW_CHUNK_BORDERS = True
@@ -23,7 +22,7 @@ CAMERA_Y_OFFSET = 200
 
 # GRID SETTINGS
 if DEBUG_SETTINGS:
-    TILE_SIZE = 16
+    TILE_SIZE = 32
 
 else:
     TILE_SIZE = 132

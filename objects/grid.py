@@ -12,6 +12,7 @@ class Grid:
         self.chunk_size = chunk_size
         self.chunks = {(0, 0): [['FLOOR' for _ in range(CHUNK_SIZE)] for _ in range(CHUNK_SIZE)]}
         self.wall_rects = []  # List to store Rect objects for walls
+        self.loot_tiles = []
 
     def generate_chunk(self, chunk_x, chunk_y):
         chunk = []
@@ -24,6 +25,12 @@ class Grid:
                 noise_value = noise.pnoise2(world_x, world_y, octaves=NOISE_OCTAVES, persistence=NOSIE_PERSISTENCE, lacunarity=NOISE_LACUNARITY, base=SEED)
 
                 tile_type = self.map_noise_to_tile(noise_value)
+                if tile_type == 'LOOT':
+                    self.loot_tiles.append((
+                        (chunk_x * CHUNK_SIZE + x) * TILE_SIZE,  # Converteer naar pixelcoördinaten
+                        (chunk_y * CHUNK_SIZE + y) * TILE_SIZE   # Converteer naar pixelcoördinaten
+                    ))
+                    tile_type = 'FLOOR'
                 row.append(tile_type)
 
                 # If the tile is a wall, add its Rect to the list
@@ -139,6 +146,18 @@ class Grid:
                         pygame.draw.line(screen, RED, (chunk_end_x, chunk_start_y), (chunk_end_x, chunk_end_y))
 
                 self.chunks[(chunk_x, chunk_y)] = self.update_chunk(chunk_x, chunk_y, chunk)
+
+        for loot_tile in self.loot_tiles:
+            pygame.draw.rect(
+                screen,
+                CYAN,
+                (
+                    loot_tile[0] - camera.x,  # Correcte X-coördinaat
+                    loot_tile[1] - camera.y,  # Correcte Y-coördinaat
+                    TILE_SIZE,
+                    TILE_SIZE
+                )
+            )
 
     def second_draw(self, screen):
         for item in self.to_draw:
