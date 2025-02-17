@@ -5,6 +5,7 @@ from config.colors import *
 from objects.enemy import Enemy
 from config.settings import *
 import math
+from objects.lootbox import LootBox
 
 class Grid:
     def __init__(self, tile_size, chunk_size):
@@ -26,10 +27,7 @@ class Grid:
 
                 tile_type = self.map_noise_to_tile(noise_value)
                 if tile_type == 'LOOT':
-                    self.loot_tiles.append((
-                        (chunk_x * CHUNK_SIZE + x) * TILE_SIZE,  # Converteer naar pixelcoördinaten
-                        (chunk_y * CHUNK_SIZE + y) * TILE_SIZE   # Converteer naar pixelcoördinaten
-                    ))
+                    self.loot_tiles.append(LootBox((chunk_x * CHUNK_SIZE + x) * TILE_SIZE, (chunk_y * CHUNK_SIZE + y) * TILE_SIZE, []))
                     tile_type = 'FLOOR'
                 row.append(tile_type)
 
@@ -148,17 +146,8 @@ class Grid:
                 self.chunks[(chunk_x, chunk_y)] = self.update_chunk(chunk_x, chunk_y, chunk)
 
         for loot_tile in self.loot_tiles:
-            pygame.draw.rect(
-                screen,
-                CYAN,
-                (
-                    loot_tile[0] - camera.x,  # Correcte X-coördinaat
-                    loot_tile[1] - camera.y,  # Correcte Y-coördinaat
-                    TILE_SIZE,
-                    TILE_SIZE
-                )
-            )
-
+            loot_tile.draw(screen, camera)
+            
     def second_draw(self, screen):
         for item in self.to_draw:
             world_x = item[0]

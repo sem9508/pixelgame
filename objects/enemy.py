@@ -17,7 +17,7 @@ class Enemy:
 
     def can_see_player(self, player_rect, chunks):
         # Get the center of the enemy and player
-        enemy_center = (self.x + self.width // 2, self.y + self.height // 2)
+        enemy_center = (self.rect.x + self.width // 2, self.rect.y + self.height // 2)
         player_center = (player_rect.x + player_rect.width // 2, player_rect.y + player_rect.height // 2)
 
         # Calculate the distance and direction between enemy and player
@@ -92,8 +92,8 @@ class Enemy:
 
     def follow_player(self, player_x, player_y, chunks):
         # Calculate the direction to the player
-        dx = player_x - self.x
-        dy = player_y - self.y
+        dx = player_x - self.rect.x
+        dy = player_y - self.rect.y
         distance = math.hypot(dx, dy)
 
         if distance == 0:
@@ -104,22 +104,22 @@ class Enemy:
         dy /= distance
 
         # Calculate potential new position
-        new_x = self.x + dx * self.speed
-        new_y = self.y + dy * self.speed
+        new_x = self.rect.x + dx * self.speed
+        new_y = self.rect.y + dy * self.speed
 
         # Check for collisions in X and Y separately
-        if not self.check_collision(new_x, self.y, chunks):
-            self.x = new_x  # Update X position if no collision
-        if not self.check_collision(self.x, new_y, chunks):
-            self.y = new_y  # Update Y position if no collision
+        if not self.check_collision(new_x, self.rect.y, chunks):
+            self.rect.x = new_x  # Update X position if no collision
+        if not self.check_collision(self.rect.x, new_y, chunks):
+            self.rect.y = new_y  # Update Y position if no collision
 
     def draw(self, screen, camera_x_offset, camera_y_offset):
-        adjusted_x = self.x - camera_x_offset
-        adjusted_y = self.y - camera_y_offset
+        adjusted_x = self.rect.x - camera_x_offset
+        adjusted_y = self.rect.y - camera_y_offset
         if (adjusted_x + self.width > 0 and adjusted_x < SCREEN_WIDTH and 
             adjusted_y + self.height > 0 and adjusted_y < SCREEN_HEIGHT):
             screen.blit(self.img, (adjusted_x, adjusted_y))
 
-    def update(self):
-
-        self.rect = pygame.Rect(self.x, self.y, self.width, self.height)
+    def update(self, player_rect):
+        if self.rect.colliderect(player_rect):
+            pass
