@@ -7,7 +7,7 @@ import sys
 
 if __name__ == '__main__':
     pygame.init()
-    pygame.mixer.init()
+    pygame.mixer.init() 
 
     screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
     active_screen = 0

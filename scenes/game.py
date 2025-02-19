@@ -51,6 +51,7 @@ class Game:
 
     def update(self):
         self.music_manager.fade_update()
+        self.player.update()
         self.enemy_manager.update(self.player.rect, self.camera, self.grid.chunks)
         self.camera.update(self.player.rect)
 
@@ -64,6 +65,10 @@ class Game:
                         self.player.change_selected_inventory_slot(1)
                     elif event.y > 0:
                         self.player.change_selected_inventory_slot(-1)
+                
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE and self.player.attacking == False:
+                        self.player.start_attack()
             
         keys = pygame.key.get_pressed()
 
